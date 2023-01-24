@@ -4,3 +4,11 @@ Step Response: The step response of a system is the reaction of the system to a 
 It is used to analyze the dynamic behavior of a system and to identify its stability, settling time, and overshoot.
 In control systems, step response is used to design controllers that can achieve desired performance in terms of stability, speed of response, and steady-state error.
 The step response can be represented by a graph that shows how the output of the system changes over time in response to a step input.
+
+Forced Response: In control theory, a forced response is the response of a system to an external input or disturbance.
+This input can be a constant value, a sinusoidal wave, or any other type of signal.
+The forced response is the output of the system when it is subjected to the external input, and it can be
+used to study the behavior of the system under different conditions. The concept of forced response is used in control
+systems design to ensure that a system responds correctly and reliably to external inputs, and to identify any
+potential issues or limitations that may arise.
+
