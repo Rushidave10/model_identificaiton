@@ -45,22 +45,32 @@ class SpringMassDamper:
         return result
 
 
-class SinglePendulum:
-    def __init__(self, l=args.length, g=args.gravity):
-        self.l = l
-        self.g = g
+class LC_filter:
+    def __init__(self, L, C, R, Omega):
+        self.L = L
+        self.C = C
+        self.R = R
+        self.Omega = Omega
 
-        A = np.array([[0., 1], [-self.g/self.l, 0]])
-        B = np.array([[0], [1]])
-        C = np.array([[1, 0]])
-        D = np.array([[0]])
+        A = np.array([[-self.R / self.L, -self.Omega, -1 / (3 * self.L), 0],
+                      [self.Omega, -self.R / self.L, 0, -1 / (3 * self.L)],
+                      [1 / (3 * self.C), 0, 0, -self.Omega],
+                      [0, 1 / (3 * self.C), self.Omega, 0],
+                      ])
 
+        B = np.array([[1 / (3 * self.L), 0],
+                      [0, 1 / (3 * self.L)],
+                      [0, 0],
+                      [0, 0],
+                      ])
+        C = np.diag(np.ones(4))
+
+        D = np.zeros(8).reshape((4, 2))
         self.sys = ct.ss(A, B, C, D)
 
-    def step_response(self):
-        T = np.linspace(0, 100, 10000)
-        t, y = ct.step_response(self.sys, T)
-        plt.plot(t, y)
-        plt.show()
-
-
+    def step_response(self, plot=False, return_x=False):
+        result = ct.step_response(self.sys)
+        if plot:
+            plt.plot(result.time, result.outputs)
+            plt.show()
+        return result
