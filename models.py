@@ -36,9 +36,8 @@ class SpringMassDamper:
             plt.show()
         return result
 
-    def generate_traj(self, num_traj=None, plot=False, input_traj=None, return_x=False):
-        input_traj = np.random.randint(1, 10, 100)
-        T = np.linspace(0, 1, 100)
+    def forced_response(self, num_traj=None, plot=False, input_traj=None, return_x=False):
+        T = np.linspace(0, 100, len(input_traj))
         result = ct.forced_response(self.sys, T, input_traj, return_x=return_x)
         if plot:
             plt.plot(result.time, result.outputs)
