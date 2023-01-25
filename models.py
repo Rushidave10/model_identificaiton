@@ -29,17 +29,21 @@ class SpringMassDamper:
         D = np.array([[0]])
         self.sys = ct.ss(A, B, C, D)
 
-    def step_response(self):
-        t, y = ct.step_response(self.sys)
-        plt.plot(t, y)
-        plt.show()
+    def step_response(self, plot=False, return_x=False):
+        result = ct.step_response(self.sys)
+        if plot:
+            plt.plot(result.time, result.outputs)
+            plt.show()
+        return result
 
-    def generate_traj(self, num_traj=None, input_traj=None):
-        input_traj = np.random.randint(1, 10, 10)
-        T = np.linspace(0, 1, 10)
-        t, y = ct.forced_response(self.sys, T, input_traj)
-        plt.plot(t, y)
-        plt.show()
+    def generate_traj(self, num_traj=None, plot=False, input_traj=None, return_x=False):
+        input_traj = np.random.randint(1, 10, 100)
+        T = np.linspace(0, 1, 100)
+        result = ct.forced_response(self.sys, T, input_traj, return_x=return_x)
+        if plot:
+            plt.plot(result.time, result.outputs)
+            plt.show()
+        return result
 
 
 class SinglePendulum:
