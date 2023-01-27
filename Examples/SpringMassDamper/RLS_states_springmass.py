@@ -1,5 +1,5 @@
 import padasip as pa
-import models
+from identifiers import LC
 import numpy as np
 import matplotlib.pyplot as plt
 
