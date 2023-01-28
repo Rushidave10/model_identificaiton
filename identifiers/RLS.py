@@ -98,3 +98,20 @@ plt.plot(t, abc[1], label="B")
 plt.plot(t, abc[2], label="C")
 plt.title("Output Voltage - Three phase 120° apart")
 plt.show()
+
+abc_current = []
+for i in range(len(t)):
+    abc_current.append(dq_to_alphabeta(data.outputs[0:2].T[i], wt[i] - np.pi/2))
+
+abc_current = np.matmul(t_23, np.array(abc_current).T)
+plt.subplot(211)
+plt.plot(t, data.outputs[0].T, label="Current d-axis")
+plt.plot(t, data.outputs[1].T, label="Current q-axis")
+plt.legend()
+
+plt.subplot(212)
+plt.plot(t, abc_current[0], label="Current A")
+plt.plot(t, abc_current[1], label="Current B")
+plt.plot(t, abc_current[2], label="Current C")
+plt.legend()
+plt.show()
