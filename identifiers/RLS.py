@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import LC
 import argparse
 import math
+import control as ct
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--Lf", default=2.3e-3, type=float, help="Filter inductance (H)")
@@ -50,44 +51,50 @@ def dq_to_alphabeta(dq, angle):
 t = np.arange(0, 0.5, 0.0001)
 wt = 2 * np.pi * args.Omega * t
 phase_B = 120.0 * np.pi / 180.0
-phase_C = -phase_B
+phase_C = 240.0 * np.pi / 180.0
 Vm = 230.0
-ABC = Vm * np.array([np.cos(wt),
-                     np.cos(wt + phase_B),
-                     np.cos(wt + phase_C)])
+ABC_in = Vm * np.array([np.cos(wt),
+                        np.cos(wt + phase_B),
+                        np.cos(wt + phase_C)])
 
 dq = []
 dqz_inv = []
 for i in range(len(t)):
-    dq.append(abc_to_dq0(ABC.T[i], wt[i]))
-
-plt.subplot(223)
-plt.plot(t, np.array(dq).T[0], label="input voltage in d-axis")
-plt.plot(t, np.array(dq).T[1], label="input voltage in q-axis")
-plt.legend()
+    dq.append(abc_to_dq0(ABC_in.T[i],  wt[i] - np.pi/2))
 
 data = sys.forced_response(T=t, inputs=np.array(dq).T)
-plt.subplot(224)
-plt.plot(t, data.outputs[2].T, label="voltage in d-axis")
-plt.plot(t, data.outputs[3].T, label="voltage in q_axis")
-plt.legend()
-
-plt.subplot(221)
-plt.plot(t, data.outputs[0].T, label="current in d-axis")
-plt.plot(t, data.outputs[1].T, label="current in q_axis")
-plt.legend()
-
 vd = data.outputs[2].T
 vq = data.outputs[3].T
 
 abc = []
 for i in range(len(t)):
-    abc.append(dq_to_alphabeta(data.outputs[2:].T[i], wt[i]))
+    abc.append(dq_to_alphabeta(data.outputs[2:].T[i], wt[i] - np.pi/2))
 
 abc = np.matmul(t_23, np.array(abc).T)
 
+plt.figure(figsize=(20, 10))
+plt.subplot(221)
+plt.plot(t, ABC_in[0], label="A")
+plt.plot(t, ABC_in[1], label="B")
+plt.plot(t, ABC_in[2], label="C")
+plt.title("Input Voltage - Three phase 120° apart")
+plt.legend()
+
 plt.subplot(222)
-plt.plot(abc[0])
-plt.plot(abc[1])
-plt.plot(abc[2])
+plt.plot(t, np.array(dq).T[0], label="d-axis")
+plt.plot(t, np.array(dq).T[1], label="q-axis")
+plt.title("Input Voltage - Rotating dq-frame")
+plt.legend()
+
+plt.subplot(223)
+plt.plot(t, data.outputs[2].T, label="d-axis")
+plt.plot(t, data.outputs[3].T, label="q_axis")
+plt.title("Output Voltage - Rotating dq-frame")
+plt.legend()
+
+plt.subplot(224)
+plt.plot(t, abc[0], label="A")
+plt.plot(t, abc[1], label="B")
+plt.plot(t, abc[2], label="C")
+plt.title("Output Voltage - Three phase 120° apart")
 plt.show()
