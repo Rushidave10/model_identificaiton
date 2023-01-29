@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import LC
 import argparse
-import math
+from utils import *
 import control as ct
 
 parser = argparse.ArgumentParser()
@@ -17,36 +17,6 @@ sys = LC.LCfilter(L=args.Lf,
                   C=args.Cf,
                   Omega=args.Omega)
 
-t_32 = 2 / 3 * np.array([[1, -0.5, -0.5],
-                         [0, 0.5 * np.sqrt(3), -0.5 * np.sqrt(3)],
-                         ])
-
-t_23 = 2 / 3 * np.array([[1, 0],
-                         [-0.5, 0.5 * np.sqrt(3)],
-                         [-0.5, -0.5 * np.sqrt(3)]
-                         ])
-
-
-def q(U, angle):
-    cos = math.cos(angle)
-    sin = math.sin(angle)
-    return cos * U[0] - sin * U[1], sin * U[0] + cos * U[1]
-
-
-def q_inv(U, angle):
-    cos = math.cos(angle)
-    sin = math.sin(angle)
-    return -sin * U[0] - cos * U[1], cos * U[0] - sin * U[1]
-
-
-def abc_to_dq0(abc, angle):
-    alphabeta = np.matmul(t_32, abc)
-    return q_inv(alphabeta, angle)
-
-
-def dq_to_alphabeta(dq, angle):
-    return q(dq, angle)
-
 
 t = np.arange(0, 0.5, 0.0001)
 wt = 2 * np.pi * args.Omega * t
@@ -60,7 +30,7 @@ ABC_in = Vm * np.array([np.cos(wt),
 dq = []
 dqz_inv = []
 for i in range(len(t)):
-    dq.append(abc_to_dq0(ABC_in.T[i],  wt[i] - np.pi/2))
+    dq.append(abc_to_dq(ABC_in.T[i],  wt[i] - np.pi/2))
 
 data = sys.forced_response(T=t, inputs=np.array(dq).T)
 vd = data.outputs[2].T
@@ -68,9 +38,8 @@ vq = data.outputs[3].T
 
 abc = []
 for i in range(len(t)):
-    abc.append(dq_to_alphabeta(data.outputs[2:].T[i], wt[i] - np.pi/2))
+    abc.append(dq_to_abc(data.outputs[2:].T[i], wt[i] - np.pi/2))
 
-abc = np.matmul(t_23, np.array(abc).T)
 
 plt.figure(figsize=(20, 10))
 plt.subplot(221)
@@ -98,20 +67,20 @@ plt.plot(t, abc[1], label="B")
 plt.plot(t, abc[2], label="C")
 plt.title("Output Voltage - Three phase 120° apart")
 plt.show()
-
-abc_current = []
-for i in range(len(t)):
-    abc_current.append(dq_to_alphabeta(data.outputs[0:2].T[i], wt[i] - np.pi/2))
-
-abc_current = np.matmul(t_23, np.array(abc_current).T)
-plt.subplot(211)
-plt.plot(t, data.outputs[0].T, label="Current d-axis")
-plt.plot(t, data.outputs[1].T, label="Current q-axis")
-plt.legend()
-
-plt.subplot(212)
-plt.plot(t, abc_current[0], label="Current A")
-plt.plot(t, abc_current[1], label="Current B")
-plt.plot(t, abc_current[2], label="Current C")
-plt.legend()
-plt.show()
+#
+# abc_current = []
+# for i in range(len(t)):
+#     abc_current.append(dq_to_alphabeta(data.outputs[0:2].T[i], wt[i] - np.pi/2))
+#
+# abc_current = np.matmul(t_23, np.array(abc_current).T)
+# plt.subplot(211)
+# plt.plot(t, data.outputs[0].T, label="Current d-axis")
+# plt.plot(t, data.outputs[1].T, label="Current q-axis")
+# plt.legend()
+#
+# plt.subplot(212)
+# plt.plot(t, abc_current[0], label="Current A")
+# plt.plot(t, abc_current[1], label="Current B")
+# plt.plot(t, abc_current[2], label="Current C")
+# plt.legend()
+# plt.show()
