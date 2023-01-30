@@ -33,7 +33,7 @@ def q(U, angle):
     """
     cos = math.cos(angle)
     sin = math.sin(angle)
-    return np.array([[cos * U[0] - sin * U[1]], [sin * U[0] + cos * U[1]]])
+    return np.array([cos * U[0] - sin * U[1], sin * U[0] + cos * U[1]])
 
 
 def q_inv(U, angle):
