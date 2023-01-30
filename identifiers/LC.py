@@ -1,7 +1,7 @@
 import control as ct
 import matplotlib.pyplot as plt
 import numpy as np
-
+import scipy.signal as sig
 class LCfilter:
     def __init__(self, L, C, R, Omega):
         self.L = L
@@ -22,13 +22,13 @@ class LCfilter:
                       ])
         C = np.diag(np.ones(4))
 
-        D = np.zeros(8).reshape((4, 2))
+        D = np.zeros(16).reshape((4, 4))
         E = np.array([[0, 0],
                       [0, 0],
                       [-1/3*self.C, 0],
                       [0, -1/3*self.C]])
 
-        self.sys = ct.ss(A, B, C, D,)
+        self.sys = ct.ss(A, np.hstack((B, E)), C, D)
 
     def forced_response(self, T, plot=False, return_x=False, inputs=np.ones(100)):
         result = ct.forced_response(sys=self.sys,
