@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import LC
 import argparse
 from utils import *
-import control as ct
+from simple_pid import PID
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--Lf", default=2.3e-3, type=float, help="Filter inductance (H)")
@@ -39,6 +39,7 @@ for i in range(len(t)):
     dq_I.append(abc_to_dq(I_out.T[i], wt[i] - np.pi / 2))
 
 data = sys.forced_response(T=t, inputs=np.array(np.hstack((dq_V, dq_I))).T)
+
 # vd = data.outputs[2].T
 # vq = data.outputs[3].T
 
@@ -102,3 +103,5 @@ plt.plot(t, data.outputs[1].T, label="Current q-axis")
 plt.legend()
 
 plt.show()
+
+
