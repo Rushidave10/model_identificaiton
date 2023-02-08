@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import LC
 import argparse
 from utils import *
-from simple_pid import PID
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--Lf", default=2.3e-3, type=float, help="Filter inductance (H)")
