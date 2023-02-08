@@ -46,7 +46,7 @@ for k in range(len(t)):
     log_y_[k] = y_
 
 # plot()
-X1 = np.expand_dims(np.random.choice(wt, 5), axis=1)
+X1 = np.expand_dims(np.random.choice(wt, 3), axis=1)
 
 Y1 = np.sin(X1)
 model = gpflow.models.GPR((X1, Y1),
@@ -60,8 +60,7 @@ y_mean, y_var = model.predict_y(wt[:, None])
 
 f_lower = f_mean - 1.96 * np.sqrt(f_var)
 f_upper = f_mean + 1.96 * np.sqrt(f_var)
-y_lower = y_mean - 1.96 * np.sqrt(y_var)
-y_upper = y_mean + 1.96 * np.sqrt(y_var)
+
 
 plt.plot(X1, Y1, "kx", mew=2, label="input data")
 plt.plot(wt, f_mean, "-", color="C0", label="mean")
@@ -69,11 +68,6 @@ plt.plot(wt, f_lower, "--", color="C0", label="f 95% confidence")
 plt.plot(wt, f_upper, "--", color="C0")
 plt.fill_between(
     wt[:], f_lower[:, 0], f_upper[:, 0], color="C0", alpha=0.1
-)
-plt.plot(wt, y_lower, ".", color="C0", label="Y 95% confidence")
-plt.plot(wt, y_upper, ".", color="C0")
-plt.fill_between(
-    wt[:], y_lower[:, 0], y_upper[:, 0], color="C0", alpha=0.1
 )
 plt.legend()
 plt.show()
