@@ -11,10 +11,11 @@ B = np.array([[0.125],
               [0.5]])
 
 C = np.diag(np.ones(2))
+Ts = 0.5
 x0 = np.array([3, 0])
 xf = np.array([-3, 0])
 
-sys = ct.ss(A, B, C, 0, 0.5)
+sys = ct.ss(A, B, C, 0, Ts)
 model = ct.ss2io(sys)
 in_constraints = opt.input_range_constraint(sys, -0.5, 0.5)
 term_constraints = opt.state_range_constraint(sys, xf, xf)
@@ -40,7 +41,7 @@ t, y, u = resp.time, resp.outputs, resp.inputs
 # Online RLS:
 
 x1_estimator = pa.filters.FilterRLS(3, mu=0.5)
-x2_estimator = pa.filters.FilterRLS(3, mu=0.5)
+x2_estimator = pa.filters.FilterRLS(3, mu=0.99, eps=1)
 log_pred_x1 = np.zeros(len(t))
 log_pred_x2 = np.zeros(len(t))
 for k in range(len(t)):
@@ -60,9 +61,16 @@ for k in range(len(t)):
     log_pred_x1[k] = x1_
     log_pred_x2[k] = x2_
 
-A_pred = [x1_estimator.w[:2], x2_estimator.w[:2]]
+A_pred = np.array([[x1_estimator.w[0], x1_estimator.w[1]],
+                   [x2_estimator.w[0], x2_estimator.w[1]]])
+B_pred = np.array([[x1_estimator.w[2]],
+                   [x2_estimator.w[2]]])
 
-# Using GPR
+print(A_pred)
+print(B_pred)
+
+sys_ = ct.ss(A_pred, B_pred, C, 0, Ts)
+
 
 plt.subplot(3, 1, 1)
 plt.plot(t, y[0])
@@ -84,15 +92,16 @@ plt.title("Thruster")
 plt.tight_layout()
 plt.show()
 
-HEATMAP = False
+HEATMAP = True
 if HEATMAP:
+    cmap = 'hot'
     plt.subplot(121)
-    plt.imshow(A, cmap='hot', interpolation='nearest')
+    plt.imshow(A, cmap=cmap, interpolation='nearest')
     plt.title("True system Matrix")
     plt.colorbar()
 
     plt.subplot(122)
-    plt.imshow(A_pred, cmap='hot', interpolation='nearest')
+    plt.imshow(A_pred, cmap=cmap, interpolation='nearest')
     plt.title("Estimated system Matrix")
     plt.colorbar()
     plt.tight_layout()
