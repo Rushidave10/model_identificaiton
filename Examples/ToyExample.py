@@ -92,7 +92,7 @@ plt.title("Thruster")
 plt.tight_layout()
 plt.show()
 
-HEATMAP = True
+HEATMAP = False
 if HEATMAP:
     cmap = 'hot'
     plt.subplot(121)

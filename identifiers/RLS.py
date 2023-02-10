@@ -40,8 +40,6 @@ for i in range(len(t)):
 
 data = sys.forced_response(T=t, inputs=np.array(np.hstack((dq_V, dq_I))).T)
 
-# vd = data.outputs[2].T
-# vq = data.outputs[3].T
 
 abc_V = []
 abc_I = []
@@ -79,29 +77,29 @@ plt.title("Output Voltage - Three phase 120° apart")
 plt.show()
 
 
-plt.subplot(221)
-plt.plot(t, I_out[0], label="Current a-axis")
-plt.plot(t, I_out[1], label="Current b-axis")
-plt.plot(t, I_out[2], label="Current c-axis")
-plt.legend()
-
-
-plt.subplot(222)
-plt.plot(t, np.array(dq_I).T[0], label="Current d-axis")
-plt.plot(t, np.array(dq_I).T[1], label="Current q-axis")
-plt.legend()
-
-plt.subplot(223)
-plt.plot(t, abc_I[0], label="Current A")
-plt.plot(t, abc_I[1], label="Current B")
-plt.plot(t, abc_I[2], label="Current C")
-plt.legend()
-
-plt.subplot(224)
-plt.plot(t, data.outputs[0].T, label="Current d-axis")
-plt.plot(t, data.outputs[1].T, label="Current q-axis")
-plt.legend()
-
-plt.show()
+# plt.subplot(221)
+# plt.plot(t, I_out[0], label="Current a-axis")
+# plt.plot(t, I_out[1], label="Current b-axis")
+# plt.plot(t, I_out[2], label="Current c-axis")
+# plt.legend()
+#
+#
+# plt.subplot(222)
+# plt.plot(t, np.array(dq_I).T[0], label="Current d-axis")
+# plt.plot(t, np.array(dq_I).T[1], label="Current q-axis")
+# plt.legend()
+#
+# plt.subplot(223)
+# plt.plot(t, abc_I[0], label="Current A")
+# plt.plot(t, abc_I[1], label="Current B")
+# plt.plot(t, abc_I[2], label="Current C")
+# plt.legend()
+#
+# plt.subplot(224)
+# plt.plot(t, data.outputs[0].T, label="Current d-axis")
+# plt.plot(t, data.outputs[1].T, label="Current q-axis")
+# plt.legend()
+#
+# plt.show()
 
 
