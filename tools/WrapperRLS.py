@@ -20,8 +20,11 @@ class RLS:
         self.p = p
         self.mu = mu
         self.eps = eps
-        self.delta_w = np.zeros((n, p)).T
-        self.R = self.init_gain(p, n)
+        if p == 1:
+            self.R = self.init_gain(p, n)
+        else:
+            self.delta_w = np.zeros((n, p)).T
+            self.R = self.init_gain(p, n)
 
     def init_weights(self, w, p, n=-1):
         if n == -1:
@@ -64,16 +67,23 @@ class RLS:
         stacket_id_matrix = np.stack([single_id_matrix] * p)
         return stacket_id_matrix
 
-    def learning_rule(self, e, x, p=1):
+    def learning_rule(self, e, x):
         """
         p = Number of output
         """
-        for idx in range(self.p):
-            R1 = self.R[idx] @ (x[:, None] * x[None, :]) @ self.R[idx]
-            R2 = self.mu + np.dot(np.dot(x, self.R[idx]), x.T)
-            self.R[idx] = 1 / self.mu * (self.R[idx] - R1 / R2)
-            self.delta_w[idx, :] = compute_delta(self.R[idx], x, e[idx])
-        return self.delta_w
+        if self.p == 1:
+            R1 = self.R @ (x[:, None] * x[None, :]) @ self.R
+            R2 = self.mu + np.dot(np.dot(x, self.R), x.T)
+            self.R = 1 / self.mu * (self.R - R1 / R2)
+            return np.dot(self.R, x.T) * e
+        else:
+            for idx in range(self.p):
+                R1 = self.R[idx] @ (x[:, None] * x[None, :]) @ self.R[idx]
+                R2 = self.mu + np.dot(np.dot(x, self.R[idx]), x.T)
+                self.R[idx] = 1 / self.mu * (self.R[idx] - R1 / R2)
+
+                self.delta_w[idx, :] = compute_delta(self.R[idx], x, e[idx])
+            return self.delta_w
 
     def adapt(self, d, x):
         y = self.predict(x, self.p)

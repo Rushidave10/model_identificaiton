@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import control.optimal as opt
 import padasip as pa
+from tools import WrapperRLS
 
 A = np.array([[1, 0.5],
               [0, 1]])
@@ -40,7 +41,7 @@ t, y, u = resp.time, resp.outputs, resp.inputs
 
 # Online RLS:
 
-x1_estimator = pa.filters.FilterRLS(3, mu=0.5)
+x1_estimator = WrapperRLS.RLS(3, mu=0.99)
 x2_estimator = pa.filters.FilterRLS(3, mu=0.99, eps=1)
 log_pred_x1 = np.zeros(len(t))
 log_pred_x2 = np.zeros(len(t))
