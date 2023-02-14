@@ -2,25 +2,40 @@ import numpy as np
 
 
 class RLS:
-    def __init__(self, n, mu=0.1, eps=0.001, w="random"):
-        self.w = self.init_weights(w, n)
+    def __init__(self, n, p=1, mu=0.1, eps=0.001, w="random"):
+        """
+        p  : Number of outputs
+        n  : Number of filter coefficients
+        mu : Forgetting factor (0 < mu <= 1)
+        eps: Positive Constant
+        w  : Initialization of weights
+        """
+        self.R = None
+        self.w = self.init_weights(w, p, n)
         self.n = n
-        self.w_history = False
+        self.p = p
         self.mu = mu
         self.eps = eps
-        self.R = 1/self.eps * np.identity(n)
+        self.R = self.init_gain(p, n)
 
-    def init_weights(self, w, n=-1):
+    def init_weights(self, w, p, n=-1):
         if n == -1:
             n = self.n
 
         if isinstance(w, str):
             if w == "random":
-                w = np.random.normal(0, 0.5, n)
+                if p == 1:
+                    w = np.random.normal(0, 0.5, n)
+                else:
+                    w = np.random.normal(0, 0.5, (n, p))
             elif w == "zeros":
-                w = np.zeros(n)
+                if p == 1:
+                    w = np.zeros(n)
+                else:
+                    w = np.zeros((n, p))
             else:
                 raise ValueError("Choose either (random, zeros) string type")
+
         elif len(w) == n:
             try:
                 w = np.array(w, dtype="float64")
@@ -30,17 +45,30 @@ class RLS:
             raise ValueError("Chose either a string or a Matrix")
         return w
 
+    def init_gain(self, p, n):
+        if p == 1:
+            self.R = 1 / self.eps * np.identity(n)
+
+        else:
+            self.R = self.identity_matrix_stack(n, p)
+
+        return self.R
+
+    def identity_matrix_stack(self, n, p):
+        single_id_matrix = 1 / self.eps * np.identity(n)
+        stacket_id_matrix = np.stack([single_id_matrix] * p)
+        return stacket_id_matrix
+
     def learning_rule(self, e, x):
         R1 = self.R @ (x[:, None] * x[None, :]) @ self.R
         R2 = self.mu + np.dot(np.dot(x, self.R), x.T)
-        self.R = 1 / self.mu * (self.R - R1/R2)
-        return np.dot(self.R, x.T)*e
+        self.R = 1 / self.mu * (self.R - R1 / R2)
+        return np.dot(self.R, x.T) * e
 
     def adapt(self, d, x):
-        y  = self.predict(x)
+        y = self.predict(x)
         e = d - y
         self.w += self.learning_rule(e, x)
 
     def predict(self, x):
         return np.dot(self.w, x)
-
